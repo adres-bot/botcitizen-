@@ -11,27 +11,27 @@ def reply():
 
     if "ماء" in incoming_msg:
         msg.body("🚰 هل هناك انقطاع في الماء؟ يرجى توضيح المكان وسنقوم بالمتابعة.")
-    elif "كهرباء" in incoming_msg or "كهربا" in incoming_msg:
+    elif "كهرباء" in incoming_msg:
         msg.body("💡 يرجى تحديد موقع المشكلة المتعلقة بالكهرباء وسنقوم بإبلاغ الجهات المختصة.")
-    elif "صحة" in incoming_msg or "صحه" in incoming_msg or "مركز صحي" in incoming_msg:
+    elif "صحة" in incoming_msg or "مركز صحي" in incoming_msg:
         msg.body("🏥 يرجى تحديد اسم المركز الصحي والمشكلة التي تواجهها، وسنتابعها مع الجهات المختصة.")
-    elif "مدرسة" in incoming_msg or "مدرسه" in incoming_msg or "تعليم" in incoming_msg:
+    elif "مدرسة" in incoming_msg or "تعليم" in incoming_msg:
         msg.body("📚 يرجى تحديد اسم المدرسة والمشكلة التي لاحظتها (نقص أدوات، غياب معلم، إلخ).")
-    elif "بلاغ" in incoming_msg or "بلّغ" in incoming_msg or "تبليغ" in incoming_msg:
+    elif "بلاغ" in incoming_msg or "بلّغ" in incoming_msg:
         msg.body("📢 أرسل تفاصيل البلاغ (مثلاً: أين؟ متى؟ ماذا حدث؟). سيتم توثيقه وإحالته للجهات المختصة.")
-    elif "تطعيم" in incoming_msg or "لقاح" in incoming_msg or "تطعيمه" in incoming_msg:
+    elif "تطعيم" in incoming_msg or "لقاح" in incoming_msg:
         msg.body("💉 حملة تطعيم الأطفال ستقام يوم السبت القادم في بلدية عرفات – لا تنسوا المشاركة.")
-    elif "استبيان" in incoming_msg or "استبانة" in incoming_msg:
+    elif "استبيان" in incoming_msg:
         msg.body("📝 هل ترغب بالمشاركة في تقييم جودة الخدمات؟ أرسل 'نعم' وسنرسل لك الأسئلة.")
-    elif "حفر" in incoming_msg or "حفرة" in incoming_msg or "حفره" in incoming_msg or "شارع" in incoming_msg:
+    elif "حفر" in incoming_msg or "حفرة" in incoming_msg or "شارع" in incoming_msg:
         msg.body("🚧 هل هناك حفرة أو ضرر في الطريق؟ يرجى تحديد الموقع وسنقوم بإبلاغ الجهة المسؤولة.")
-    elif "إنارة" in incoming_msg or "ضوء" in incoming_msg or "شارع مظلم" in incoming_msg or "اضاءة" in incoming_msg:
+    elif "إنارة" in incoming_msg or "ضوء" in incoming_msg or "شارع مظلم" in incoming_msg:
         msg.body("💡 شكرًا للتبليغ. يرجى تحديد اسم الشارع الذي يحتاج إصلاح الإنارة.")
-    elif "نفايات" in incoming_msg or "فايات" in incoming_msg or "قمامة" in incoming_msg or "نظافة" in incoming_msg or "زبالة" in incoming_msg:
+    elif "نفايات" in incoming_msg or "قمامة" in incoming_msg or "نظافة" in incoming_msg:
         msg.body("🗑️ شكرًا على الإبلاغ. سيتم إرسال ملاحظة إلى فرق النظافة في منطقتك.")
-    elif "شكوى" in incoming_msg or "تظلم" in incoming_msg or "شكاية" in incoming_msg:
+    elif "شكوى" in incoming_msg or "تظلم" in incoming_msg:
         msg.body("📝 يرجى كتابة تفاصيل الشكوى وسنتابعها بالطرق الرسمية.")
-    elif "قائمة" in incoming_msg or "مساعدة" in incoming_msg or "help" in incoming_msg:
+    elif "قائمة" in incoming_msg or "مساعدة" in incoming_msg:
         msg.body(
             "👋 أهلاً بك في بوت المواطن:\n"
             "اكتب أي من الكلمات التالية:\n"
