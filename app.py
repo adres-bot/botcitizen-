@@ -66,5 +66,18 @@ def reply():
 
     return str(resp)
 
+# ✅ صفحة لعرض البلاغات
+@app.route("/بلاغات", methods=["GET"])
+def show_reports():
+    cursor.execute("SELECT sender, message, timestamp FROM reports ORDER BY id DESC")
+    rows = cursor.fetchall()
+
+    html = "<h2>📋 قائمة البلاغات المستلمة</h2><ul style='font-family:tahoma;'>"
+    for sender, message, timestamp in rows:
+        html += f"<li><b>📨 من:</b> {sender}<br><b>💬 الرسالة:</b> {message}<br><b>🕒 الوقت:</b> {timestamp}</li><hr>"
+    html += "</ul>"
+
+    return html
+
 if __name__ == "__main__":
     app.run()
