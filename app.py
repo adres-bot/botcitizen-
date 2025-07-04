@@ -9,40 +9,48 @@ app = Flask(__name__)
 def init_db():
     conn = sqlite3.connect('reports.db')
     c = conn.cursor()
-    c.execute('''
-        CREATE TABLE IF NOT EXISTS reports (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            phone TEXT,
-            message TEXT,
-            timestamp TEXT
-        )
-    ''')
+    c.execute('''CREATE TABLE IF NOT EXISTS reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    phone TEXT,
+                    message TEXT,
+                    timestamp TEXT
+                )''')
     conn.commit()
     conn.close()
 
 init_db()
 
+# ✅ استقبال الرسائل من واتساب
 @app.route("/whatsapp", methods=["POST"])
 def reply():
     incoming_msg = request.values.get('Body', '').strip().lower()
-    sender = request.values.get('From', '')
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+    phone = request.values.get('From', '')
     resp = MessagingResponse()
     msg = resp.message()
 
-    def save_report(msg_text):
-        conn = sqlite3.connect('reports.db')
-        c = conn.cursor()
-        c.execute('INSERT INTO reports (phone, message, timestamp) VALUES (?, ?, ?)', (sender, msg_text, timestamp))
-        conn.commit()
-        conn.close()
-
-    if "بلاغ" in incoming_msg or "بلّغ" in incoming_msg:
+    # الكلمات المفتاحية والردود
+    if "ماء" in incoming_msg:
+        msg.body("🚰 هل هناك انقطاع في الماء؟ يرجى توضيح المكان وسنقوم بالمتابعة.")
+    elif "كهرباء" in incoming_msg:
+        msg.body("💡 يرجى تحديد موقع المشكلة المتعلقة بالكهرباء وسنقوم بإبلاغ الجهات المختصة.")
+    elif "صحة" in incoming_msg or "مركز صحي" in incoming_msg:
+        msg.body("🏥 يرجى تحديد اسم المركز الصحي والمشكلة التي تواجهها، وسنتابعها مع الجهات المختصة.")
+    elif "مدرسة" in incoming_msg or "تعليم" in incoming_msg:
+        msg.body("📚 يرجى تحديد اسم المدرسة والمشكلة التي لاحظتها (نقص أدوات، غياب معلم، إلخ).")
+    elif "بلاغ" in incoming_msg or "بلّغ" in incoming_msg:
         msg.body("📢 أرسل تفاصيل البلاغ (مثلاً: أين؟ متى؟ ماذا حدث؟). سيتم توثيقه وإحالته للجهات المختصة.")
-    elif any(word in incoming_msg for word in ["ماء", "كهرباء", "صحة", "مدرسة", "تطعيم", "استبيان", "حفر", "إنارة", "نفايات", "شكوى"]):
-        save_report(incoming_msg)
-        msg.body("✅ تم استلام بلاغك. شكرًا لمساهمتك!")
+    elif "تطعيم" in incoming_msg or "لقاح" in incoming_msg:
+        msg.body("💉 حملة تطعيم الأطفال ستقام يوم السبت القادم في بلدية عرفات – لا تنسوا المشاركة.")
+    elif "استبيان" in incoming_msg:
+        msg.body("📝 هل ترغب بالمشاركة في تقييم جودة الخدمات؟ أرسل 'نعم' وسنرسل لك الأسئلة.")
+    elif "حفر" in incoming_msg or "حفرة" in incoming_msg or "شارع" in incoming_msg:
+        msg.body("🚧 هل هناك حفرة أو ضرر في الطريق؟ يرجى تحديد الموقع وسنقوم بإبلاغ الجهة المسؤولة.")
+    elif "إنارة" in incoming_msg or "ضوء" in incoming_msg or "شارع مظلم" in incoming_msg:
+        msg.body("💡 شكرًا للتبليغ. يرجى تحديد اسم الشارع الذي يحتاج إصلاح الإنارة.")
+    elif "نفايات" in incoming_msg or "قمامة" in incoming_msg or "نظافة" in incoming_msg:
+        msg.body("🗑️ شكرًا على الإبلاغ. سيتم إرسال ملاحظة إلى فرق النظافة في منطقتك.")
+    elif "شكوى" in incoming_msg or "تظلم" in incoming_msg:
+        msg.body("📝 يرجى كتابة تفاصيل الشكوى وسنتابعها بالطرق الرسمية.")
     elif "قائمة" in incoming_msg or "مساعدة" in incoming_msg:
         msg.body(
             "👋 أهلاً بك في بوت المواطن:\n"
@@ -52,6 +60,15 @@ def reply():
         )
     else:
         msg.body("❗ لم أفهم رسالتك.\nاكتب 'قائمة' لعرض الكلمات المدعومة.")
+
+    # ✅ تخزين البلاغ في قاعدة البيانات
+    if len(incoming_msg) > 3:
+        conn = sqlite3.connect('reports.db')
+        c = conn.cursor()
+        c.execute("INSERT INTO reports (phone, message, timestamp) VALUES (?, ?, ?)",
+                  (phone, incoming_msg, datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+        conn.commit()
+        conn.close()
 
     return str(resp)
 
@@ -65,15 +82,14 @@ def show_reports():
     conn.close()
 
     html = '''
-    <!DOCTYPE html>
     <html>
     <head>
-        <meta charset="utf-8">
         <title>قائمة البلاغات</title>
+        <meta charset="utf-8">
     </head>
-    <body>
-        <h2>📋 قائمة البلاغات المستلمة</h2>
-        <table border="1" cellpadding="5" style="direction: rtl;">
+    <body style="direction: rtl; font-family: Arial;">
+        <h2>📋 قائمة البلاغات</h2>
+        <table border="1" cellpadding="8" cellspacing="0">
             <tr>
                 <th>📱 الرقم</th>
                 <th>💬 البلاغ</th>
@@ -92,39 +108,7 @@ def show_reports():
     '''
     return render_template_string(html, rows=rows)
 
+# ✅ تشغيل التطبيق
 if __name__ == "__main__":
-  from flask import render_template_string
-import sqlite3
+    app.run()
 
-@app.route("/بلاغات")
-def show_reports():
-    conn = sqlite3.connect('reports.db')
-    c = conn.cursor()
-    c.execute("SELECT phone, message, timestamp FROM reports ORDER BY id DESC")
-    rows = c.fetchall()
-    conn.close()
-
-    html = '''
-    <html>
-    <head><title>قائمة البلاغات</title></head>
-    <body>
-        <h2>📋 قائمة البلاغات المستلمة</h2>
-        <table border="1" style="direction: rtl;">
-            <tr>
-                <th>📱 الرقم</th>
-                <th>💬 البلاغ</th>
-                <th>🕒 الوقت</th>
-            </tr>
-            {% for row in rows %}
-            <tr>
-                <td>{{ row[0] }}</td>
-                <td>{{ row[1] }}</td>
-                <td>{{ row[2] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </body>
-    </html>
-    '''
-    return render_template_string(html, rows=rows)
-   app.run()
