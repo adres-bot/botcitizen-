@@ -1,11 +1,34 @@
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
+import sqlite3
+from datetime import datetime
 
 app = Flask(__name__)
+
+# إنشاء قاعدة البيانات (إن لم تكن موجودة)
+conn = sqlite3.connect("reports.db", check_same_thread=False)
+cursor = conn.cursor()
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS reports (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender TEXT,
+        message TEXT,
+        timestamp TEXT
+    )
+''')
+conn.commit()
 
 @app.route("/whatsapp", methods=["POST"])
 def reply():
     incoming_msg = request.values.get('Body', '').strip().lower()
+    sender = request.values.get('From', '')
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # حفظ البلاغ في قاعدة البيانات
+    cursor.execute("INSERT INTO reports (sender, message, timestamp) VALUES (?, ?, ?)",
+                   (sender, incoming_msg, timestamp))
+    conn.commit()
+
     resp = MessagingResponse()
     msg = resp.message()
 
