@@ -93,4 +93,38 @@ def show_reports():
     return render_template_string(html, rows=rows)
 
 if __name__ == "__main__":
-    app.run()
+  from flask import render_template_string
+import sqlite3
+
+@app.route("/بلاغات")
+def show_reports():
+    conn = sqlite3.connect('reports.db')
+    c = conn.cursor()
+    c.execute("SELECT phone, message, timestamp FROM reports ORDER BY id DESC")
+    rows = c.fetchall()
+    conn.close()
+
+    html = '''
+    <html>
+    <head><title>قائمة البلاغات</title></head>
+    <body>
+        <h2>📋 قائمة البلاغات المستلمة</h2>
+        <table border="1" style="direction: rtl;">
+            <tr>
+                <th>📱 الرقم</th>
+                <th>💬 البلاغ</th>
+                <th>🕒 الوقت</th>
+            </tr>
+            {% for row in rows %}
+            <tr>
+                <td>{{ row[0] }}</td>
+                <td>{{ row[1] }}</td>
+                <td>{{ row[2] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </body>
+    </html>
+    '''
+    return render_template_string(html, rows=rows)
+   app.run()
